@@ -3,66 +3,74 @@ const express = require("express");
 const puppeteer = require("puppeteer");
 const app = express();
 const PORT = process.env.PORT || 3001;
-if (process.env.NODE_ENV === "development") {
-  const username = process.env.USER;
-  const password = process.env.PASS;
+if (process.env.NODE_ENV !== "production") {
+  var username = process.env.USER;
+  var password = process.env.PASS;
 }
-
-// Define middleware here
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get("/api/apply", function(req, res) {
-  async function apply() {
-    //=====***** CRM() LOGIC START *****=====
-    console.log("inside crm");
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: false
-    });
-    const page = await browser.newPage();
-    await page.goto(`https://ema.agentcrmlogin.com/index.php`);
-    await page.setViewport({ width: 1000, height: 821 });
-    //===log in===
-    //placeholders need to be deleted before username and password input
-    //username
-    const userInputForm =
-      "#loginFormDiv > form > div:nth-child(4) > div > .form-control";
-    const userInputPlaceholder = await page.$eval(
-      userInputForm,
-      el => el.value
-    );
-    await page.waitForSelector(userInputForm);
-    await page.click(userInputForm);
-    await page.keyboard.type(process.env.EMA_USERNAME);
-    //password
-    const passwInputForm =
-      "#loginFormDiv > form > div:nth-child(5) > div > .form-control";
-    const passwInputPlaceholder = await page.$eval(
-      passwInputForm,
-      el => el.value
-    );
-    await page.waitForSelector(passwInputForm);
-    await page.click(passwInputForm);
-    for (let i = 0; i < passwInputPlaceholder.length; i++) {
-      await page.keyboard.press("Backspace");
-    }
-    await page.keyboard.type(process.env.EMA_PASSWORD);
-    //submit login
-    const submitLogIn = "#loginFormDiv > form > div:nth-child(6) > button";
-    await page.waitForSelector(submitLogIn);
-    await Promise.all([page.click(submitLogIn), page.waitForNavigation()]);
-    //===log in finished===
-    //else close browser
-    await browser.close();
-    return new Promise((resolve, reject) => {
-      resolve(true);
-    });
-    //=====***** CRM() LOGIC END *****=====
-  }
+apply();
+//app.post("/api/apply", function(req, res) {
+async function apply() {
+  console.log("inside apply");
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    headless: false
+  });
+  const page = await browser.newPage();
+  //page.on("console", consoleObj => console.log(consoleObj.text()));
+  await page.goto(
+    `https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin`
+  );
+  await page.setViewport({ width: 900, height: 821 });
+  //===log in===
+  await page.evaluate(
+    (username, password) => {
+      document.querySelector("#username").value = username;
+      document.querySelector("#password").value = password;
+      document
+        .querySelector(
+          "#app__container > main > div > form > div.login__form_action_container > button"
+        )
+        .click();
+    },
+    username,
+    password
+  );
+  //===log in finished===
+  await page.waitForNavigation();
+  // const applyBtnSelector = "#jobs-nav-item > a";
+  // await page.waitForSelector(applyBtnSelector);
+  // //const applyBtn =
+  // await page.evaluate(applyBtnSelector => {
+  //   return document.querySelector(applyBtnSelector).click();
+  // }, applyBtnSelector);
+  // await page.waitForNavigation();
+  // console.log(applyBtn);
+  await page.goto(
+    "https://www.linkedin.com/jobs/search/?distance=25&f_LF=f_AL&geoId=100955123&keywords=javascript&location=Sandy%20Springs%2C%20Georgia%2C%20United%20States&sortBy=DD"
+  );
+  await page.waitForNavigation();
+  // await page.$eval("button.jobs-apply-button", applyBtn => {
+  //   console.log(applyBtn);
+  //   applyBtn.click();
+  // });
+  const applyBtnSelector = "button.jobs-apply-button";
+  const applyBtn = await page.evaluate(applyBtnSelector => {
+    return document.querySelector(applyBtnSelector).innerHTML;
+    //.click();
+  }, applyBtnSelector);
+  console.log(applyBtn);
+  //close browser
+  await browser.close();
+  return new Promise((resolve, reject) => {
+    resolve();
+  });
+}
 
-  res.json("got");
-});
+//res.json(req.body);
+//});
 
 app.listen(PORT, function() {
   console.log(`🌎  ==> API Server now listening on PORT ${PORT}!`);
