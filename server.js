@@ -15,7 +15,14 @@ apply();
 async function apply() {
   console.log("inside apply");
   const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-infobars",
+      "--window-position=0,0",
+      "--ignore-certifcate-errors",
+      "--ignore-certifcate-errors-spki-list"
+    ],
     headless: false
   });
   const page = await browser.newPage();
@@ -40,28 +47,33 @@ async function apply() {
   );
   //===log in finished===
   await page.waitForNavigation();
-  // const applyBtnSelector = "#jobs-nav-item > a";
-  // await page.waitForSelector(applyBtnSelector);
-  // //const applyBtn =
-  // await page.evaluate(applyBtnSelector => {
-  //   return document.querySelector(applyBtnSelector).click();
-  // }, applyBtnSelector);
-  // await page.waitForNavigation();
-  // console.log(applyBtn);
   await page.goto(
-    "https://www.linkedin.com/jobs/search/?distance=25&f_LF=f_AL&geoId=100955123&keywords=javascript&location=Sandy%20Springs%2C%20Georgia%2C%20United%20States&sortBy=DD"
+    "https://www.linkedin.com/jobs/search/?distance=25&f_LF=f_AL&geoId=100955123&keywords=javascript&location=Sandy%20Springs%2C%20Georgia%2C%20United%20States&sortBy=DD",
+    { waitUntil: "networkidle2" }
   );
-  await page.waitForNavigation();
-  // await page.$eval("button.jobs-apply-button", applyBtn => {
-  //   console.log(applyBtn);
-  //   applyBtn.click();
+  const jobListPage = await page.$$eval(
+    ".jobs-search-results__list > li > div.job-card-search",
+    el => el.map(e => e.id)
+  );
+
+  // await page.evaluate(() => {
+  //   return Array.from(
+  //     document.querySelectorAll(
+  //       ".jobs-search-results__list > li > div.job-card-search"
+  //     ).id
+  //   );
   // });
-  const applyBtnSelector = "button.jobs-apply-button";
-  const applyBtn = await page.evaluate(applyBtnSelector => {
-    return document.querySelector(applyBtnSelector).innerHTML;
-    //.click();
-  }, applyBtnSelector);
-  console.log(applyBtn);
+
+  console.log(jobListPage);
+  const easyApplyBtnSelector = "button.jobs-apply-button";
+  await page.waitForSelector(easyApplyBtnSelector);
+  await Promise.all([page.click(easyApplyBtnSelector)]);
+  //page.waitForNavigation()
+  const applyBtnSelector =
+    "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
+  await page.waitForSelector(applyBtnSelector);
+  await Promise.all([page.click(applyBtnSelector)]);
+  //, page.waitForNavigation()
   //close browser
   await browser.close();
   return new Promise((resolve, reject) => {
