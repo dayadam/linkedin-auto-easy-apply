@@ -51,35 +51,8 @@ async function apply() {
     "https://www.linkedin.com/jobs/search/?distance=25&f_LF=f_AL&geoId=100955123&keywords=javascript&location=Sandy%20Springs%2C%20Georgia%2C%20United%20States&sortBy=DD",
     { waitUntil: "networkidle2" }
   );
-  async function autoScroll(page) {
-    await page.evaluate(async () => {
-      await new Promise((resolve, reject) => {
-        var totalHeight = 0;
-        var distance = 100;
-        var timer = setInterval(() => {
-          var scrollHeight = document.querySelector(
-            ".jobs-search-results__list"
-          ).scrollHeight;
-          console.log(scrollHeight);
-          document
-            .querySelector(".jobs-search-results__list")
-            .scrollBy(0, distance);
-          //window.scrollBy(0, distance);
-          totalHeight += distance;
-
-          if (totalHeight >= scrollHeight) {
-            clearInterval(timer);
-            resolve();
-          }
-        }, 100);
-      });
-    });
-  }
-  //await autoScroll(page);
-  // const firstJobListPage =
-  //   ".jobs-search-results__list > li:nth-child(1) > div.job-card-search";
-  // await page.waitForSelector(firstJobListPage);
-  // await page.click(firstJobListPage);
+  //wait if no search results? what if login doesn't work?
+  //need to added easy apply to URL.
   const searchResultsQuantity = await page.$eval(
     "div.jobs-search-two-pane__title.display-flex > h1 > small",
     el => el.innerText.split(" ")[0]
@@ -97,44 +70,32 @@ async function apply() {
     await page.$eval(
       `.jobs-search-results__list > li:nth-child(${i})`,
       el => {
-        //el.focus();
-        //el.scrollTop = 3000;
-        //el.scrollTo(0, el.scrollHeight);
-        //el.scrollBy(0, 3000);
         el.scrollIntoView();
       },
       i
     );
   }
-
   console.log("scrolled");
-  await page.waitFor(1000);
-  // let el = await page.$x("//div[@data-job-id]");
-  // console.log(el);
-  // for (i = 0; i < 500; i++) {
-  //   await page.$eval(".jobs-search-results__list", el => el.focus());
-  //   await page.keyboard.press("ArrowDown");
-  //   console.log(i);
-  // }
-  // get length => scroll to length => get length => scroll
-  // await Promise.all([page.waitFor(4000), page.keyboard.down("ArrowDown")]);
-  // await page.keyboard.up("ArrowDown");
   const jobListPage = await page.$$eval(
     ".jobs-search-results__list > li > div.job-card-search",
-    el => el.length
-    //.map(e => e.id)
+    el => el.map(e => e.id)
   );
-
   console.log(jobListPage);
-  const easyApplyBtnSelector = "button.jobs-apply-button";
-  await page.waitForSelector(easyApplyBtnSelector);
-  await Promise.all([page.click(easyApplyBtnSelector)]);
-  //page.waitForNavigation()
-  const applyBtnSelector =
-    "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
-  await page.waitForSelector(applyBtnSelector);
-  await Promise.all([page.click(applyBtnSelector)]);
-  //, page.waitForNavigation()
+  for (i = 0; i < jobListPage.length; i++) {
+    const jobID = "#" + jobListPage[i];
+    await page.waitForSelector(jobID);
+    await page.click(jobID);
+    const easyApplyBtnSelector = "button.jobs-apply-button";
+    await page.waitForSelector(easyApplyBtnSelector);
+    await Promise.all([page.click(easyApplyBtnSelector)]);
+    //page.waitForNavigation()
+    const applyBtnSelector =
+      "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
+    await page.waitForSelector(applyBtnSelector);
+    await Promise.all([page.click(applyBtnSelector)]);
+    //, page.waitForNavigation()
+  }
+
   //close browser
   await browser.close();
   return new Promise((resolve, reject) => {
