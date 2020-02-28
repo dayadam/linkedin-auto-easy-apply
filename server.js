@@ -51,18 +51,53 @@ async function apply() {
     "https://www.linkedin.com/jobs/search/?distance=25&f_LF=f_AL&geoId=100955123&keywords=javascript&location=Sandy%20Springs%2C%20Georgia%2C%20United%20States&sortBy=DD",
     { waitUntil: "networkidle2" }
   );
+  async function autoScroll(page) {
+    await page.evaluate(async () => {
+      await new Promise((resolve, reject) => {
+        var totalHeight = 0;
+        var distance = 100;
+        var timer = setInterval(() => {
+          var scrollHeight = document.querySelector(
+            ".jobs-search-results__list"
+          ).scrollHeight;
+          console.log(scrollHeight);
+          document
+            .querySelector(".jobs-search-results__list")
+            .scrollBy(0, distance);
+          //window.scrollBy(0, distance);
+          totalHeight += distance;
+
+          if (totalHeight >= scrollHeight) {
+            clearInterval(timer);
+            resolve();
+          }
+        }, 100);
+      });
+    });
+  }
+  //await autoScroll(page);
+  // const firstJobListPage =
+  //   ".jobs-search-results__list > li:nth-child(1) > div.job-card-search";
+  // await page.waitForSelector(firstJobListPage);
+  // await page.click(firstJobListPage);
+  // await page.$eval(".jobs-search-results__list", el => {
+  //   el.focus();
+  //   el.scrollBy(0, 3000);
+  // });
+  // let el = await page.$x("//div[@data-job-id]");
+  // console.log(el);
+  for (i = 0; i < 500; i++) {
+    await page.$eval(".jobs-search-results__list", el => el.focus());
+    await page.keyboard.press("ArrowDown");
+    console.log(i);
+  }
+  // await Promise.all([page.waitFor(4000), page.keyboard.down("ArrowDown")]);
+  // await page.keyboard.up("ArrowDown");
   const jobListPage = await page.$$eval(
     ".jobs-search-results__list > li > div.job-card-search",
-    el => el.map(e => e.id)
+    el => el.length
+    //.map(e => e.id)
   );
-
-  // await page.evaluate(() => {
-  //   return Array.from(
-  //     document.querySelectorAll(
-  //       ".jobs-search-results__list > li > div.job-card-search"
-  //     ).id
-  //   );
-  // });
 
   console.log(jobListPage);
   const easyApplyBtnSelector = "button.jobs-apply-button";
