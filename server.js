@@ -80,17 +80,43 @@ async function apply() {
   //   ".jobs-search-results__list > li:nth-child(1) > div.job-card-search";
   // await page.waitForSelector(firstJobListPage);
   // await page.click(firstJobListPage);
-  // await page.$eval(".jobs-search-results__list", el => {
-  //   el.focus();
-  //   el.scrollBy(0, 3000);
-  // });
+  const searchResultsQuantity = await page.$eval(
+    "div.jobs-search-two-pane__title.display-flex > h1 > small",
+    el => el.innerText.split(" ")[0]
+  );
+  console.log(searchResultsQuantity);
+  function getPageResults(searchResultsQuantity) {
+    searchResultsQuantity = parseInt(searchResultsQuantity);
+    if (searchResultsQuantity >= 25) {
+      return 25;
+    } else return searchResultsQuantity;
+  }
+  const pageResults = getPageResults(searchResultsQuantity);
+  console.log(pageResults);
+  for (i = 1; i < pageResults + 1; i++) {
+    await page.$eval(
+      `.jobs-search-results__list > li:nth-child(${i})`,
+      el => {
+        //el.focus();
+        //el.scrollTop = 3000;
+        //el.scrollTo(0, el.scrollHeight);
+        //el.scrollBy(0, 3000);
+        el.scrollIntoView();
+      },
+      i
+    );
+  }
+
+  console.log("scrolled");
+  await page.waitFor(1000);
   // let el = await page.$x("//div[@data-job-id]");
   // console.log(el);
-  for (i = 0; i < 500; i++) {
-    await page.$eval(".jobs-search-results__list", el => el.focus());
-    await page.keyboard.press("ArrowDown");
-    console.log(i);
-  }
+  // for (i = 0; i < 500; i++) {
+  //   await page.$eval(".jobs-search-results__list", el => el.focus());
+  //   await page.keyboard.press("ArrowDown");
+  //   console.log(i);
+  // }
+  // get length => scroll to length => get length => scroll
   // await Promise.all([page.waitFor(4000), page.keyboard.down("ArrowDown")]);
   // await page.keyboard.up("ArrowDown");
   const jobListPage = await page.$$eval(
