@@ -81,19 +81,32 @@ async function apply() {
     el => el.map(e => e.id)
   );
   console.log(jobListPage);
+  //jobListPage.length
   for (i = 0; i < jobListPage.length; i++) {
-    const jobID = "#" + jobListPage[i];
-    await page.waitForSelector(jobID);
-    await page.click(jobID);
-    const easyApplyBtnSelector = "button.jobs-apply-button";
-    await page.waitForSelector(easyApplyBtnSelector);
-    await Promise.all([page.click(easyApplyBtnSelector)]);
-    //page.waitForNavigation()
-    const applyBtnSelector =
-      "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
-    await page.waitForSelector(applyBtnSelector);
-    await Promise.all([page.click(applyBtnSelector)]);
-    //, page.waitForNavigation()
+    try {
+      const jobID = "#" + jobListPage[i];
+      await page.waitForSelector(jobID);
+      await page.click(jobID);
+      const easyApplyBtnSelector = "button.jobs-apply-button";
+      await page.evaluate(easyApplyBtnSelector => {
+        if (document.querySelector(easyApplyBtnSelector)) {
+          document.querySelector(easyApplyBtnSelector).click();
+        }
+        const applyBtnSelector =
+          "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
+        if (document.querySelector(applyBtnSelector)) {
+          document.querySelector(applyBtnSelector).click();
+        }
+      }, easyApplyBtnSelector);
+      // await page.waitForSelector(easyApplyBtnSelector);
+      // await Promise.all([page.click(easyApplyBtnSelector)]);
+      //page.waitForNavigation()
+      // await page.waitForSelector(applyBtnSelector);
+      // await Promise.all([page.click(applyBtnSelector)]);
+      //, page.waitForNavigation()
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   //close browser
