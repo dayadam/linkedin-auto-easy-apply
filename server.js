@@ -80,8 +80,15 @@ async function apply() {
   console.log("scrolled");
   const jobListPage = await page.$$eval(
     ".jobs-search-results__list > li > div.job-card-search",
-    el => el.map(e => e.id)
+    el => el.map(e => "#" + e.id)
   );
+
+
+
+
+
+
+
   const jobIDClickPromises = [];
   console.log(jobListPage);
   let j = 0;
@@ -128,30 +135,42 @@ async function apply() {
     //let promiseDone;
     //jobIDClickPromises.push(
     //new Promise(async (resolve, reject) => {
-    const jobID = "#" + jobListPage[i];
-    console.log(jobID);
-    await page.waitForSelector(jobID);
-    await page.click(jobID);
+    // const jobID = "#" + jobListPage[i];
+    console.log(jobListPage[i]);
+    await page.waitForSelector(jobListPage[i]);
+    await page.click(jobListPage[i]);
     //take out of eval?
-    await page.evaluate(async (jobID) => {
-      //will cause errors on last page when job list is 25 and results are 13
+    const easyApplyBtnSelector = "button.jobs-apply-button";
+    //not waiting for selector before check, could cause bug
+    if (await page.$eval(easyApplyBtnSelector, el => el)) {
+      await page.waitForSelector(easyApplyBtnSelector)
+      const company = await page.$eval(".jobs-details-top-card__company-url.ember-view", el => el.innerText);
+      console.log(company);
+    }
+    //await page.click(easyApplyBtnSelector);
+    // if (await document.querySelector(easyApplyBtnSelector)) {
+    //   console.log( await (document.querySelector(".jobs-details-top-card__company-url.ember-view")).innerText);
+    //   await (await document.querySelector(easyApplyBtnSelector)).click();
+    // }
+    // await page.evaluate(async (jobListPage, i) => {
+    //   //will cause errors on last page when job list is 25 and results are 13
 
-      //document.querySelector(jobID).click();
+    //   //document.querySelector(jobID).click();
 
-      const easyApplyBtnSelector = "button.jobs-apply-button";
-      if (await document.querySelector(easyApplyBtnSelector)) {
-        console.log( await (document.querySelector(".jobs-details-top-card__company-url.ember-view")).innerText);
-        await (await document.querySelector(easyApplyBtnSelector)).click();
-      }
-      const applyBtnSelector =
-        "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
-      if (await document.querySelector(applyBtnSelector)) {
-        console.log(await (document.querySelector("#jobs-apply-header")).innerText);
-        await (await document.querySelector(applyBtnSelector)).click();
-      }
-      //promiseDone = true;
+    //   const easyApplyBtnSelector = "button.jobs-apply-button";
+    //   if (await document.querySelector(easyApplyBtnSelector)) {
+    //     console.log(await (document.querySelector(".jobs-details-top-card__company-url.ember-view")).innerText);
+    //     await (await document.querySelector(easyApplyBtnSelector)).click();
+    //   }
+    //   const applyBtnSelector =
+    //     "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
+    //   if (await document.querySelector(applyBtnSelector)) {
+    //     console.log(await (document.querySelector("#jobs-apply-header")).innerText);
+    //     await (await document.querySelector(applyBtnSelector)).click();
+    //   }
+    //   //promiseDone = true;
 
-    }, jobID);
+    // }, jobListPage, i);
     // if (promiseDone) {
     //   resolve();
     // }
