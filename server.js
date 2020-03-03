@@ -86,88 +86,86 @@ async function apply() {
   console.log(jobListPage);
   let j = 0;
 
-  async function loopDownResultsOnPage(jobListPage, j) {
-    const jobID = "#" + jobListPage[j];
+  // async function loopDownResultsOnPage(jobListPage, j) {
+  //   return new Promise(async (resolve, reject) => {
+  //   const jobID = "#" + jobListPage[j];
+  //   console.log(jobID);
+  //   await page.waitForSelector(jobID);
+  //   await page.click(jobID);
+  //   await page.evaluate((jobID) => {
+  //     //will cause errors on last page when job list is 25 and results are 13
+  //     //document.querySelector(jobID).click();
+  //     const easyApplyBtnSelector = "button.jobs-apply-button";
+  //     if (document.querySelector(easyApplyBtnSelector)) {
+  //       console.log(document.querySelector(".jobs-details-top-card__company-url.ember-view").innerText);
+  //       document.querySelector(easyApplyBtnSelector).click();
+  //     }
+  //     const applyBtnSelector =
+  //       "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
+  //     if (document.querySelector(applyBtnSelector)) {
+  //       console.log(document.querySelector("#jobs-apply-header").innerText);
+  //       document.querySelector(applyBtnSelector).click();
+  //     }
+  //   }, jobID);
+
+
+  //     //after lead status has been changed, go back to search page and check to see if there's still leads that need changing
+  //     //checkLead().then(function(record) {
+  //     //if leads need changing, recursively run logic to change lead status again
+  //     if (j < 25) {
+  //       j++;
+  //       resolve(await loopDownResultsOnPage(jobListPage, j));
+  //       //else resolve to false and exit crm()
+  //     } else resolve();
+  //     //});
+  //   });
+  // }
+
+  // await loopDownResultsOnPage(jobListPage, j);
+
+  //(async function () {
+  for (i = 0; i < jobListPage.length; i++) {
+    //let promiseDone;
+    //jobIDClickPromises.push(
+    //new Promise(async (resolve, reject) => {
+    const jobID = "#" + jobListPage[i];
     console.log(jobID);
     await page.waitForSelector(jobID);
     await page.click(jobID);
-    await page.evaluate((jobID) => {
+    //take out of eval?
+    await page.evaluate(async (jobID) => {
       //will cause errors on last page when job list is 25 and results are 13
+
       //document.querySelector(jobID).click();
+
       const easyApplyBtnSelector = "button.jobs-apply-button";
-      if (document.querySelector(easyApplyBtnSelector)) {
-        console.log(document.querySelector(".jobs-details-top-card__company-url.ember-view").innerText);
-        document.querySelector(easyApplyBtnSelector).click();
+      if (await document.querySelector(easyApplyBtnSelector)) {
+        console.log( await (document.querySelector(".jobs-details-top-card__company-url.ember-view")).innerText);
+        await (await document.querySelector(easyApplyBtnSelector)).click();
       }
       const applyBtnSelector =
         "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
-      if (document.querySelector(applyBtnSelector)) {
-        console.log(document.querySelector("#jobs-apply-header").innerText);
-        document.querySelector(applyBtnSelector).click();
+      if (await document.querySelector(applyBtnSelector)) {
+        console.log(await (document.querySelector("#jobs-apply-header")).innerText);
+        await (await document.querySelector(applyBtnSelector)).click();
       }
+      //promiseDone = true;
+
     }, jobID);
-
-    return new Promise((resolve, reject) => {
-      //after lead status has been changed, go back to search page and check to see if there's still leads that need changing
-      //checkLead().then(function(record) {
-      //if leads need changing, recursively run logic to change lead status again
-      if (j < 25) {
-        j++;
-        resolve(loopDownResultsOnPage(jobListPage, j));
-        //else resolve to false and exit crm()
-      } else resolve();
-      //});
-    });
+    // if (promiseDone) {
+    //   resolve();
+    // }
+    //})
+    //)
+    // await page.waitForSelector(easyApplyBtnSelector);
+    // await Promise.all([page.click(easyApplyBtnSelector)]);
+    //page.waitForNavigation()
+    // await page.waitForSelector(applyBtnSelector);
+    // await Promise.all([page.click(applyBtnSelector)]);
+    //, page.waitForNavigation()
   }
-
-  await loopDownResultsOnPage(jobListPage, j);
-
-
-  // for (i = 0; i < jobListPage.length; i++) {
-  //   //try {
-  //   let promiseDone;
-  //   jobIDClickPromises.push(
-  //     new Promise(async (resolve, reject) => {
-  //       const jobID = "#" + jobListPage[i];
-  //       console.log(jobID);
-  //       await page.waitForSelector(jobID);
-  //       await page.click(jobID);
-  //       await page.evaluate((jobID, resolve) => {
-  //         //will cause errors on last page when job list is 25 and results are 13
-
-  //         //document.querySelector(jobID).click();
-
-  //         const easyApplyBtnSelector = "button.jobs-apply-button";
-  //         if (document.querySelector(easyApplyBtnSelector)) {
-  //           console.log(document.querySelector(".jobs-details-top-card__company-url.ember-view").innerText);
-  //           document.querySelector(easyApplyBtnSelector).click();
-  //         }
-  //         const applyBtnSelector =
-  //           "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
-  //         if (document.querySelector(applyBtnSelector)) {
-  //           console.log(document.querySelector("#jobs-apply-header").innerText);
-  //           document.querySelector(applyBtnSelector).click();
-  //         }
-  //         promiseDone = true;
-
-  //       }, jobID, resolve);
-  //       if (promiseDone) {
-  //         resolve();
-  //       }
-  //     })
-  //   )
-  //   // await page.waitForSelector(easyApplyBtnSelector);
-  //   // await Promise.all([page.click(easyApplyBtnSelector)]);
-  //   //page.waitForNavigation()
-  //   // await page.waitForSelector(applyBtnSelector);
-  //   // await Promise.all([page.click(applyBtnSelector)]);
-  //   //, page.waitForNavigation()
-  //   // } catch (err) {
-  //   //   console.log(err);
-  //   // }
-  // }
+  //}())
   // await Promise.all(jobIDClickPromises);
-  // //jobListPage.map())
 
 
   //close browser
