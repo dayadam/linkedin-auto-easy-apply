@@ -68,20 +68,40 @@ async function apply() {
   }
   const pageResults = getPageResults(searchResultsQuantity);
   console.log(pageResults);
+  const jobListPage = [];
   for (i = 1; i < pageResults + 1; i++) {
-    await page.$eval(
-      `.jobs-search-results__list > li:nth-child(${i})`,
+    jobListPage.push(await page.$eval(
+      `.jobs-search-results__list > li:nth-child(${i}) > div.job-card-search > artdeco-entity-lockup > figure > a > img`,
       el => {
         el.scrollIntoView();
+        function wait(ms) {
+          var start = new Date().getTime();
+          var end = start;
+          while (end < start + ms) {
+            end = new Date().getTime();
+          }
+        }
+        wait(50);
+        return el
       },
       i
-    );
+    ));
   }
-  console.log("scrolled");
-  const jobListPage = await page.$$eval(
-    ".jobs-search-results__list > li > div.job-card-search",
-    el => el.map(e => "#" + e.id)
-  );
+
+
+
+
+
+  // let counter = 1;
+  // console.log("scrolled");
+  // const jobListPage = await page.$$eval(
+  //   `.jobs-search-results__list > li:nth-child${counter} > div.job-card-search`,
+  //   (el, counter) => el.map((e, counter) => {
+
+  //     return e
+  //   }), counter);
+
+  //> artdeco-entity-lockup > figure > a > img
 
 
 
@@ -142,7 +162,12 @@ async function apply() {
     //take out of eval?
     const easyApplyBtnSelector = "button.jobs-apply-button";
     //not waiting for selector before check, could cause bug
-    if (await page.$eval(easyApplyBtnSelector, el => el)) {
+    const applyButton = await page.evaluate((easyApplyBtnSelector) => {
+      //await 
+      return document.querySelector(easyApplyBtnSelector)
+    }, easyApplyBtnSelector)
+    console.log(applyButton);
+    if (applyButton) {
       await page.waitForSelector(easyApplyBtnSelector)
       const company = await page.$eval(".jobs-details-top-card__company-url.ember-view", el => el.innerText);
       console.log(company);
