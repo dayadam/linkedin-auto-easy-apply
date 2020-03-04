@@ -70,11 +70,11 @@ async function apply() {
   console.log(pageResults);
   const jobListPage = [];
   for (i = 1; i < pageResults + 1; i++) {
-    await page.$eval(
-      `.jobs-search-results__list > li > div.job-card-search`,
+    jobListPage.push(await page.$eval(
+      `.jobs-search-results__list > li:nth-child(${i})  > div.job-card-search > artdeco-entity-lockup > figure > a`,
       (el, jobListPage, i) => {
         el.scrollIntoView();
-        //jobListPage.push(`.jobs-search-results__list > li:nth-child(${i}) > div.job-card-search > artdeco-entity-lockup > figure > a > img`)
+
         // function wait(ms) {
         //   var start = new Date().getTime();
         //   var end = start;
@@ -83,38 +83,36 @@ async function apply() {
         //   }
         // }
         // wait(50);
-        // function wait(el) {
-        //   return new Promise((res, rej) => {
-        //     setTimeout(function () {
-        //       res(el);
-        //     }, 50)
-        //   })
-        // }
-        // return wait(el).then(el => {
-        //   console.log(toString(el))
-        //   return toString(el)
-        // })
-        return el
+        function wait(el) {
+          return new Promise((res, rej) => {
+            setTimeout(function () {
+              res(el);
+            }, 50)
+          })
+        }
+        return wait(el).then(el => {
+          return el.href
+        })
       },
       i, jobListPage
-    );
-  }
-
-  //break into separate functions, creat joblistarray down here
-  await page.waitFor(5000);
-  console.log("waited");
-
-  for (i = 1; i < pageResults + 1; i++) {
-
-    jobListPage.push(await page.$eval(
-      `.jobs-search-results__list > li:nth-child(${i}) > div.job-card-search > artdeco-entity-lockup > figure > a > img`,
-      el => el
     ));
   }
 
+  //break into separate functions, creat joblistarray down here
+  // await page.waitFor(5000);
+  // console.log("waited");
+
+  // for (i = 1; i < pageResults + 1; i++) {
+
+  //   jobListPage.push(await page.$eval(
+  //     `.jobs-search-results__list > li:nth-child(${i}) > div.job-card-search > artdeco-entity-lockup > figure > a > img`,
+  //     el => el
+  //   ));
+  // }
 
 
-//need to just scrape urls, id are dynamically chaning after load after scroll around
+
+  //need to just scrape urls, id are dynamically chaning after load after scroll around
 
 
   // let counter = 1;
