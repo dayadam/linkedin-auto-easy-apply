@@ -74,15 +74,6 @@ async function apply() {
       `.jobs-search-results__list > li:nth-child(${i})  > div.job-card-search > artdeco-entity-lockup > figure > a`,
       (el, jobListPage, i) => {
         el.scrollIntoView();
-
-        // function wait(ms) {
-        //   var start = new Date().getTime();
-        //   var end = start;
-        //   while (end < start + ms) {
-        //     end = new Date().getTime();
-        //   }
-        // }
-        // wait(50);
         function wait(el) {
           return new Promise((res, rej) => {
             setTimeout(function () {
@@ -97,82 +88,7 @@ async function apply() {
       i, jobListPage
     ));
   }
-
-  //break into separate functions, creat joblistarray down here
-  // await page.waitFor(5000);
-  // console.log("waited");
-
-  // for (i = 1; i < pageResults + 1; i++) {
-
-  //   jobListPage.push(await page.$eval(
-  //     `.jobs-search-results__list > li:nth-child(${i}) > div.job-card-search > artdeco-entity-lockup > figure > a > img`,
-  //     el => el
-  //   ));
-  // }
-
-
-
-  //need to just scrape urls, id are dynamically chaning after load after scroll around
-
-
-  // let counter = 1;
-  // console.log("scrolled");
-  // const jobListPage = await page.$$eval(
-  //   `.jobs-search-results__list > li:nth-child${counter} > div.job-card-search`,
-  //   (el, counter) => el.map((e, counter) => {
-
-  //     return e
-  //   }), counter);
-
-  //> artdeco-entity-lockup > figure > a > img
-
-
-
-
-
-
-
-  const jobIDClickPromises = [];
   console.log(jobListPage);
-  let j = 0;
-
-  // async function loopDownResultsOnPage(jobListPage, j) {
-  //   return new Promise(async (resolve, reject) => {
-  //   const jobID = "#" + jobListPage[j];
-  //   console.log(jobID);
-  //   await page.waitForSelector(jobID);
-  //   await page.click(jobID);
-  //   await page.evaluate((jobID) => {
-  //     //will cause errors on last page when job list is 25 and results are 13
-  //     //document.querySelector(jobID).click();
-  //     const easyApplyBtnSelector = "button.jobs-apply-button";
-  //     if (document.querySelector(easyApplyBtnSelector)) {
-  //       console.log(document.querySelector(".jobs-details-top-card__company-url.ember-view").innerText);
-  //       document.querySelector(easyApplyBtnSelector).click();
-  //     }
-  //     const applyBtnSelector =
-  //       "div.jobs-easy-apply-footer__actions.display-flex.justify-flex-end > button";
-  //     if (document.querySelector(applyBtnSelector)) {
-  //       console.log(document.querySelector("#jobs-apply-header").innerText);
-  //       document.querySelector(applyBtnSelector).click();
-  //     }
-  //   }, jobID);
-
-
-  //     //after lead status has been changed, go back to search page and check to see if there's still leads that need changing
-  //     //checkLead().then(function(record) {
-  //     //if leads need changing, recursively run logic to change lead status again
-  //     if (j < 25) {
-  //       j++;
-  //       resolve(await loopDownResultsOnPage(jobListPage, j));
-  //       //else resolve to false and exit crm()
-  //     } else resolve();
-  //     //});
-  //   });
-  // }
-
-  // await loopDownResultsOnPage(jobListPage, j);
-
   //(async function () {
   for (i = 0; i < jobListPage.length; i++) {
     //let promiseDone;
@@ -224,12 +140,6 @@ async function apply() {
     // }
     //})
     //)
-    // await page.waitForSelector(easyApplyBtnSelector);
-    // await Promise.all([page.click(easyApplyBtnSelector)]);
-    //page.waitForNavigation()
-    // await page.waitForSelector(applyBtnSelector);
-    // await Promise.all([page.click(applyBtnSelector)]);
-    //, page.waitForNavigation()
   }
   //}())
   // await Promise.all(jobIDClickPromises);
