@@ -74,15 +74,25 @@ async function apply() {
       `.jobs-search-results__list > li:nth-child(${i}) > div.job-card-search > artdeco-entity-lockup > figure > a > img`,
       el => {
         el.scrollIntoView();
-        function wait(ms) {
-          var start = new Date().getTime();
-          var end = start;
-          while (end < start + ms) {
-            end = new Date().getTime();
-          }
+        // function wait(ms) {
+        //   var start = new Date().getTime();
+        //   var end = start;
+        //   while (end < start + ms) {
+        //     end = new Date().getTime();
+        //   }
+        // }
+        // wait(50);
+        function wait() {
+          return new Promise((res, rej) => {
+            setTimeout(function () {
+              res();
+            }, 50)
+          })
         }
-        wait(50);
-        return el
+        return wait().then(res => { return el })
+
+
+
       },
       i
     ));
