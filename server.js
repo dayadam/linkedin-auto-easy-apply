@@ -89,17 +89,24 @@ async function apply() {
   }
   console.log(jobListPage);
 
-  for (i = 0; i < 1; i++) {
+  for (i = 0; i < jobListPage.length; i++) {
     const page2 = await browser.newPage();
     await page2.goto(jobListPage[i]);
     const divApplySelector = "div.justify-space-between.display-flex.align-items-stretch.mb4 > div.display-flex.flex-column.justify-space-between.mb1 > div.jobs-top-card__actions";
     const easyApplyBtnSelector = "button.jobs-apply-button";
     await page2.waitForSelector(divApplySelector);
-    const applyButton = await page2.$eval(divApplySelector, el => {
-      return (el.querySelector("button.jobs-apply-button") ? true : false);
-    });
-    console.log(applyButton);
-    await page.click(jobListPage[i]);
+    const applyButtonBool = await page2.$eval(divApplySelector, (el, easyApplyBtnSelector) => {
+      return (el.querySelector(easyApplyBtnSelector) ? true : false);
+    }, easyApplyBtnSelector);
+    console.log(applyButtonBool);
+    if (applyButtonBool) {
+      await page2.click(easyApplyBtnSelector);
+      const applyButtonSubmit = "footer > div.jobs-easy-apply-footer__actions > button"
+      await page2.$eval(applyButtonSubmit, el => {
+        el.click();
+      }); //try catch
+      await page2.close();
+    } else await page2.close();
   }
   // (async function () {
   // for (i = 0; i < jobListPage.length; i++) {
