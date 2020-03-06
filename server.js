@@ -23,7 +23,8 @@ async function apply() {
       "--ignore-certifcate-errors",
       "--ignore-certifcate-errors-spki-list"
     ],
-    headless: false
+    headless: false,
+    slowMo: 200
   });
   const page = await browser.newPage();
   //page.on("console", consoleObj => console.log(consoleObj.text()));
@@ -72,17 +73,17 @@ async function apply() {
   for (i = 1; i < pageResults + 1; i++) {
     jobListPage.push(await page.$eval(
       `.jobs-search-results__list > li:nth-child(${i})  > div.job-card-search > artdeco-entity-lockup > figure > a`,
-      (el) => {
-        el.scrollIntoView();
-        function wait(el) {
+      (aTag) => {
+        aTag.scrollIntoView();
+        function wait(aTag) {
           return new Promise((res, rej) => {
             setTimeout(function () {
-              res(el);
+              res(aTag);
             }, 50)
           })
         }
-        return wait(el).then(el => {
-          return el.href
+        return wait(aTag).then(aTag => {
+          return aTag.href
         })
       }
     ));
@@ -100,11 +101,35 @@ async function apply() {
     }, easyApplyBtnSelector);
     console.log(applyButtonBool);
     if (applyButtonBool) {
+      const page3Promise = new Promise(x => browser.once('targetcreated', target => x(target.page())));
       await page2.click(easyApplyBtnSelector);
       const applyButtonSubmit = "footer > div.jobs-easy-apply-footer__actions > button"
-      await page2.$eval(applyButtonSubmit, el => {
-        el.click();
-      }); //try catch
+      try {
+        await page2.$eval(applyButtonSubmit, el => {
+          el.click();
+        });
+      } catch (err) {
+        const page3 = await page3Promise;
+        //console.log(err)
+
+        await page3.waitForSelector("footer > button");
+        Promise.all([page3.click("footer > button")]);
+        //, page3.waitForNavigation()
+        await page3.waitForSelector("div.question-wrapper");
+        const jobQuestionArray = await page3.$$eval("div.question-wrapper > li", el => el);
+        console.log(jobQuestionArray);
+        for (k = 0; k < jobQuestionArray.length; k++) {
+          console.log(jobQuestionArray[k]);
+          if (jobQuestionArray[k].innerText === "Are you comfortable commuting to this job's location?") {
+            console.log("hi");
+            //await page3.$eval()
+          }
+        }
+        await page3.close();
+
+
+
+      }
       await page2.close();
     } else await page2.close();
   }
